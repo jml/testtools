@@ -15,6 +15,7 @@ __all__ = [
     'reraise',
     'unicode_output_stream',
     'text_or_bytes',
+    'text',
     ]
 
 import codecs
@@ -68,6 +69,7 @@ if sys.version_info > (3, 0):
         return (type,)
     str_is_unicode = True
     text_or_bytes = (str, bytes)
+    text = str
 else:
     import __builtin__ as builtins
     def _u(s):
@@ -86,6 +88,7 @@ else:
         return (type, types.ClassType)
     str_is_unicode = sys.platform == "cli"
     text_or_bytes = (unicode, str)
+    text = unicode
 
 _u.__doc__ = __u_doc
 

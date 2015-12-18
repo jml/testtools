@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012 testtools developers. See LICENSE for details.
+# Copyright (c) 2009-2015 testtools developers. See LICENSE for details.
 
 """Matchers, a way to express complex assertions outside the testcase.
 
@@ -17,12 +17,16 @@ __all__ = [
     'MismatchError',
     ]
 
+from pyrsistent import PClass, field, pmap, pmap_field
 from testtools.compat import (
     _isbytes,
+    _u,
     istext,
     str_is_unicode,
-    text_repr
-    )
+    text_repr,
+    text,
+)
+from testtools.content import Content
 
 
 class Matcher(object):
@@ -103,6 +107,33 @@ class Mismatch(object):
     def __repr__(self):
         return  "<testtools.matchers.Mismatch object at %x attributes=%r>" % (
             id(self), self.__dict__)
+
+
+class _Mismatch(PClass):
+
+    _description = field(text, mandatory=True)
+    _details = pmap_field(text, Content)
+
+    def describe(self):
+        return self._description
+
+    def get_details(self):
+        return self._details
+
+    def append(self, message):
+        return self.set(
+            '_description', _u('%s: %s') % (self._description, message))
+
+    def prepend(self, message):
+        return self.set(
+            '_description', _u('%s: %s') % (message, self._description))
+
+    def attach(self, name, content):
+        return self.set('_details', self._details.set(name, content))
+
+
+def mismatch(description, details=pmap()):
+    return _Mismatch(_description=description, _details=details)
 
 
 class MismatchError(AssertionError):
