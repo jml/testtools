@@ -10,14 +10,14 @@ from ..helpers import (
     map_values,
     )
 from ._higherorder import (
-    MismatchesAll,
+    combine_mismatches,
     )
 from ._impl import Matcher, Mismatch
 
 
 def LabelledMismatches(mismatches, details=None):
     """A collection of mismatches, each labelled."""
-    return MismatchesAll(
+    return combine_mismatches(
         (v.prepend(k) for (k, v) in sorted(mismatches.items())),
         wrap=False)
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012 testtools developers. See LICENSE for details.
+# Copyright (c) 2009-2015 testtools developers. See LICENSE for details.
 
 __all__ = [
     'ContainsAll',
@@ -13,7 +13,7 @@ from ..helpers import map_values
 from ._higherorder import (
     Annotate,
     MatchesAll,
-    MismatchesAll,
+    combine_mismatches,
     )
 from ._impl import Mismatch
 
@@ -71,7 +71,7 @@ class MatchesListwise(object):
                     return mismatch
                 mismatches.append(mismatch)
         if mismatches:
-            return MismatchesAll(mismatches)
+            return combine_mismatches(mismatches)
 
 
 class MatchesStructure(object):

@@ -33,7 +33,7 @@ class MatchesAny(object):
             if mismatch is None:
                 return None
             results.append(mismatch)
-        return MismatchesAll(results)
+        return combine_mismatches(results)
 
     def __str__(self):
         return "MatchesAny(%s)" % ', '.join([
@@ -66,27 +66,25 @@ class MatchesAll(object):
                     return mismatch
                 results.append(mismatch)
         if results:
-            return MismatchesAll(results)
+            return combine_mismatches(results)
         else:
             return None
 
 
-class MismatchesAll(Mismatch):
-    """A mismatch with many child mismatches."""
+def combine_mismatches(mismatches, wrap=True):
+    """Create a mismatch from many mismatches."""
+    descriptions = []
+    if wrap:
+        descriptions = [_u("Differences: [")]
+    for result in mismatches:
+        descriptions.append(result.describe())
+    if wrap:
+        descriptions.append(_u("]"))
+    return mismatch('\n'.join(descriptions))
 
-    def __init__(self, mismatches, wrap=True):
-        self.mismatches = mismatches
-        self._wrap = wrap
 
-    def describe(self):
-        descriptions = []
-        if self._wrap:
-            descriptions = ["Differences: ["]
-        for result in self.mismatches:
-            descriptions.append(result.describe())
-        if self._wrap:
-            descriptions.append("]")
-        return '\n'.join(descriptions)
+# XXX: Backwards compatibility
+MismatchesAll = combine_mismatches
 
 
 class Not(object):
@@ -220,7 +218,7 @@ class AllMatch(object):
             if mismatch:
                 mismatches.append(mismatch)
         if mismatches:
-            return MismatchesAll(mismatches)
+            return combine_mismatches(mismatches)
 
 
 class AnyMatch(object):
@@ -240,7 +238,7 @@ class AnyMatch(object):
                 mismatches.append(mismatch)
             else:
                 return None
-        return MismatchesAll(mismatches)
+        return combine_mismatches(mismatches)
 
 
 class MatchesPredicate(Matcher):
