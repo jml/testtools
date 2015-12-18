@@ -22,9 +22,7 @@ import codecs
 import io
 import locale
 import os
-import re
 import sys
-import traceback
 import unicodedata
 
 from extras import try_import, try_imports
