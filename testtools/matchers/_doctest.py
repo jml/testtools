@@ -8,7 +8,7 @@ import doctest
 import re
 
 from ..compat import str_is_unicode
-from ._impl import Mismatch
+from ._impl import mismatch
 
 
 class _NonManglingOutputChecker(doctest.OutputChecker):
@@ -61,7 +61,7 @@ class DocTestMatches(object):
         """
         if not example.endswith('\n'):
             example += '\n'
-        self.want = example # required variable name by doctest.
+        self.want = example  # required variable name by doctest.
         self.flags = flags
         self._checker = _NonManglingOutputChecker()
 
@@ -88,17 +88,9 @@ class DocTestMatches(object):
         return self._checker.output_difference(self, with_nl, self.flags)
 
 
-class DocTestMismatch(Mismatch):
-    """Mismatch object for DocTestMatches."""
-
-    def __init__(self, matcher, with_nl):
-        self.matcher = matcher
-        self.with_nl = with_nl
-
-    def describe(self):
-        s = self.matcher._describe_difference(self.with_nl)
-        if str_is_unicode or isinstance(s, unicode):
-            return s
-        # GZ 2011-08-24: This is actually pretty bogus, most C0 codes should
-        #                be escaped, in addition to non-ascii bytes.
-        return s.decode("latin1").encode("ascii", "backslashreplace")
+def DocTestMismatch(matcher, with_nl):
+    """Make a mismatch for DocTestMatches."""
+    s = matcher._describe_difference(with_nl)
+    if str_is_unicode or isinstance(s, unicode):
+        return mismatch(s)
+    return mismatch(s.decode("latin1"))
