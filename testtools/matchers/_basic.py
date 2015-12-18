@@ -269,12 +269,14 @@ class Contains(Matcher):
 
     def match(self, matchee):
         try:
-            if self.needle not in matchee:
-                return DoesNotContain(matchee, self.needle)
+            found = self.needle in matchee
         except TypeError:
             # e.g. 1 in 2 will raise TypeError
             return DoesNotContain(matchee, self.needle)
-        return None
+        if found:
+            return None
+        else:
+            return DoesNotContain(matchee, self.needle)
 
 
 class MatchesRegex(object):
