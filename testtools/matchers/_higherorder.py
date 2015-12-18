@@ -271,6 +271,7 @@ class MatchesPredicate(Matcher):
 
     def match(self, x):
         if not self.predicate(x):
+            # XXX: Would change to `mismatch`, but unicode
             return Mismatch(self.message % x)
 
 
@@ -348,5 +349,6 @@ class _MatchesPredicateWithParams(Matcher):
 
     def match(self, x):
         if not self.predicate(x, *self.args, **self.kwargs):
+            # XXX: Would change to `mismatch` but unicode
             return Mismatch(
                 self.message.format(*((x,) + self.args), **self.kwargs))
