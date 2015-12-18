@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012 testtools developers. See LICENSE for details.
+# Copyright (c) 2009-2015 testtools developers. See LICENSE for details.
 
 __all__ = [
     'Contains',
@@ -23,16 +23,15 @@ from ..compat import (
     istext,
     str_is_unicode,
     text_repr,
-    )
+    _u,
+)
 from ..helpers import list_subtract
-from ._higherorder import (
-    MatchesPredicateWithParams,
-    PostfixedMismatch,
-    )
+from ._higherorder import MatchesPredicateWithParams
 from ._impl import (
     Matcher,
     Mismatch,
-    )
+    mismatch,
+)
 
 
 def _format(thing):
@@ -59,7 +58,7 @@ class _BinaryComparison(object):
             return None
         description = _describe_binary_mismatch(
             self.expected, self.mismatch_string, other)
-        return Mismatch(description)
+        return mismatch(description)
 
     def comparator(self, expected, other):
         raise NotImplementedError(self.comparator)
@@ -69,10 +68,10 @@ def _describe_binary_mismatch(expected, mismatch_string, other):
     left = repr(expected)
     right = repr(other)
     if len(left) + len(right) > 70:
-        return "%s:\nreference = %s\nactual    = %s\n" % (
+        return _u("%s:\nreference = %s\nactual    = %s\n") % (
             mismatch_string, _format(expected), _format(other))
     else:
-        return "%s %s %s" % (left, mismatch_string, right)
+        return _u("%s %s %s") % (left, mismatch_string, right)
 
 
 class Equals(_BinaryComparison):
@@ -133,13 +132,11 @@ class SameMembers(Matcher):
         observed_only = list_subtract(observed, self.expected)
         if expected_only == observed_only == []:
             return
-        return PostfixedMismatch(
-            "\nmissing:    %s\nextra:      %s" % (
-                _format(expected_only), _format(observed_only)),
-            Mismatch(
-                _describe_binary_mismatch(
-                    self.expected, 'elements differ', observed))
-        )
+        suffix = "\nmissing:    %s\nextra:      %s" % (
+            _format(expected_only), _format(observed_only))
+        return mismatch(
+            _describe_binary_mismatch(
+                self.expected, 'elements differ', observed)).append(suffix)
 
 
 class DoesNotStartWith(Mismatch):
@@ -311,8 +308,8 @@ class MatchesRegex(object):
             if not isinstance(pattern, str_is_unicode and str or unicode):
                 pattern = pattern.decode("latin1")
             pattern = pattern.encode("unicode_escape").decode("ascii")
-            return Mismatch("%r does not match /%s/" % (
-                    value, pattern.replace("\\\\", "\\")))
+            return mismatch("%r does not match /%s/" % (
+                value, pattern.replace("\\\\", "\\")))
 
 
 def has_len(x, y):
