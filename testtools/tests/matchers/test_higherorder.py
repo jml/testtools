@@ -1,4 +1,4 @@
-# Copyright (c) 2008-2011 testtools developers. See LICENSE for details.
+# Copyright (c) 2008-2015 testtools developers. See LICENSE for details.
 
 from testtools import TestCase
 from testtools.matchers import (
@@ -6,14 +6,12 @@ from testtools.matchers import (
     Equals,
     LessThan,
     MatchesStructure,
-    Mismatch,
     NotEquals,
     )
 from testtools.matchers._higherorder import (
     AfterPreprocessing,
     AllMatch,
     Annotate,
-    AnnotatedMismatch,
     AnyMatch,
     MatchesAny,
     MatchesAll,
@@ -21,7 +19,6 @@ from testtools.matchers._higherorder import (
     MatchesPredicateWithParams,
     Not,
     )
-from testtools.tests.helpers import FullStackRunTest
 from testtools.tests.matchers.helpers import TestMatchersInterface
 
 
@@ -178,16 +175,6 @@ class TestAnnotate(TestCase, TestMatchersInterface):
         self.assertThat(
             annotated,
             MatchesStructure.fromExample(expected, 'annotation', 'matcher'))
-
-
-class TestAnnotatedMismatch(TestCase):
-
-    run_tests_with = FullStackRunTest
-
-    def test_forwards_details(self):
-        x = Mismatch('description', {'foo': 'bar'})
-        annotated = AnnotatedMismatch("annotation", x)
-        self.assertEqual(x.get_details(), annotated.get_details())
 
 
 class TestNotInterface(TestCase, TestMatchersInterface):
