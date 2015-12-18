@@ -110,29 +110,83 @@ class Mismatch(object):
 
 
 class _Mismatch(PClass):
+    """A mismatch detected by a matcher."""
 
     _description = field(text, mandatory=True)
     _details = pmap_field(text, Content)
 
+    # XXX: Should we also store the matchee?
+
     def describe(self):
+        """Describe the mismatch.
+
+        :return: A text description of the mismatch. unicode on Python 2, str
+            on Python 3.
+        """
         return self._description
 
     def get_details(self):
-        return self._details
+        """Get the details of the mismatch.
+
+        :return: A dict mapping names to ``Content`` objects. Names are strings
+            that name the detail and ``Content`` objects are the actual detail
+            to add to the result. See ``testtools.TestCase.addDetail``.
+        """
+        return dict(self._details)
 
     def append(self, message):
+        """Create a new mismatch with ``message`` appended.
+
+        Equivalent to:
+
+            mismatch(original.describe() + ': ' + message,
+                     original.get_details())
+
+        :param message: unicode on Python 2, str on Python 3. Human-readable
+            text to append to the message of the mismatch.
+        :return: A new mismatch with the message appended.
+        """
         return self.set(
             '_description', _u('%s: %s') % (self._description, message))
 
     def prepend(self, message):
+        """Create a new mismatch with ``message`` prepended.
+
+        Equivalent to:
+
+            mismatch(message + ': ' + original.describe(),
+                     original.get_details())
+
+        :param message: unicode on Python 2, str on Python 3. Human-readable
+            text to prepended to the message of the mismatch.
+        :return: A new mismatch with the message prepended.
+        """
         return self.set(
             '_description', _u('%s: %s') % (message, self._description))
 
     def attach(self, name, content):
+        """Attach a detail.
+
+        Equivalent to:
+
+            new_details = original.get_details()
+            new_details[name] = content
+            mismatch(original.describe(), new_details)
+
+        :return: A new mismatch with detail added.
+        """
         return self.set('_details', self._details.set(name, content))
 
 
-def mismatch(description, details=pmap()):
+def mismatch(description, details=None):
+    """Create a mismatch.
+
+    :param description: Human-readable text describing a mismatch.
+        unicode on Python 2, str on Python 3.
+    :param details: dict mapping names of details to ``Content`` objects.
+        If not provided, then defaults to the empty dict.
+    """
+    details = pmap() if details is None else pmap(details)
     return _Mismatch(_description=description, _details=details)
 
 
