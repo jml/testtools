@@ -47,6 +47,9 @@ class MatchesAllDict(Matcher):
 class DictMismatches(Mismatch):
     """A mismatch with a dict of child mismatches."""
 
+    # XXX: Would like to delete this, but tests check for 'mismatches'
+    # attribute.
+
     def __init__(self, mismatches, details=None):
         super(DictMismatches, self).__init__(None, details=details)
         self.mismatches = mismatches
