@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012 testtools developers. See LICENSE for details.
+# Copyright (c) 2009-2015 testtools developers. See LICENSE for details.
 
 __all__ = [
     'MatchesException',
@@ -17,7 +17,7 @@ from ._basic import MatchesRegex
 from ._higherorder import AfterPreproccessing
 from ._impl import (
     Matcher,
-    Mismatch,
+    mismatch,
     )
 
 
@@ -61,15 +61,15 @@ class MatchesException(Matcher):
 
     def match(self, other):
         if type(other) != tuple:
-            return Mismatch(_u('%r is not an exc_info tuple') % other)
+            return mismatch(_u('%r is not an exc_info tuple') % other)
         expected_class = self.expected
         if self._is_instance:
             expected_class = expected_class.__class__
         if not issubclass(other[0], expected_class):
-            return Mismatch(_u('%r is not a %r') % (other[0], expected_class))
+            return mismatch(_u('%r is not a %r') % (other[0], expected_class))
         if self._is_instance:
             if other[1].args != self.expected.args:
-                return Mismatch(
+                return mismatch(
                     _u('%s has different arguments to %s.') % (
                         _error_repr(other[1]), _error_repr(self.expected)))
         elif self.value_re is not None:
@@ -102,18 +102,18 @@ class Raises(Matcher):
     def match(self, matchee):
         try:
             result = matchee()
-            return Mismatch(_u('%r returned %r') % (matchee, result))
+            return mismatch(_u('%r returned %r') % (matchee, result))
         # Catch all exceptions: Raises() should be able to match a
         # KeyboardInterrupt or SystemExit.
         except:
             exc_info = sys.exc_info()
             if self.exception_matcher:
-                mismatch = self.exception_matcher.match(exc_info)
-                if not mismatch:
+                result = self.exception_matcher.match(exc_info)
+                if not result:
                     del exc_info
                     return
             else:
-                mismatch = None
+                result = None
             # The exception did not match, or no explicit matching logic was
             # performed. If the exception is a non-user exception then
             # propagate it.
@@ -121,7 +121,7 @@ class Raises(Matcher):
             if _is_exception(exception) and not _is_user_exception(exception):
                 del exc_info
                 raise
-            return mismatch
+            return result
 
     def __str__(self):
         return 'Raises()'
