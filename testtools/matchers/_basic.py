@@ -56,12 +56,16 @@ class _BinaryComparison(object):
     def match(self, other):
         if self.comparator(other, self.expected):
             return None
-        description = _describe_binary_mismatch(
+        return _binary_mismatch(
             self.expected, self.mismatch_string, other)
-        return mismatch(description)
 
     def comparator(self, expected, other):
         raise NotImplementedError(self.comparator)
+
+
+def _binary_mismatch(expected, mismatch_string, other):
+    return mismatch(
+        _describe_binary_mismatch(expected, mismatch_string, other))
 
 
 def _describe_binary_mismatch(expected, mismatch_string, other):
@@ -134,9 +138,8 @@ class SameMembers(Matcher):
             return
         suffix = "\nmissing:    %s\nextra:      %s" % (
             _format(expected_only), _format(observed_only))
-        return mismatch(
-            _describe_binary_mismatch(
-                self.expected, 'elements differ', observed)).append(suffix)
+        return _binary_mismatch(
+            self.expected, 'elements differ', observed).append(suffix)
 
 
 class DoesNotStartWith(Mismatch):

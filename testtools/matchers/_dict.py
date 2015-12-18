@@ -10,7 +10,6 @@ from ..helpers import (
     map_values,
     )
 from ._higherorder import (
-    AnnotatedMismatch,
     PrefixedMismatch,
     MismatchesAll,
     )
@@ -249,14 +248,11 @@ class KeysEqual(Matcher):
         return "KeysEqual(%s)" % ', '.join(map(repr, self.expected))
 
     def match(self, matchee):
-        from ._basic import _describe_binary_mismatch, Equals
+        from ._basic import _binary_mismatch, Equals
         expected = sorted(self.expected)
         matched = Equals(expected).match(sorted(matchee.keys()))
         if matched:
-            return Mismatch(
-                '%s: %s' % (
-                    _describe_binary_mismatch(
-                        expected, 'does not match', matchee),
-                    'Keys not equal'))
+            return _binary_mismatch(
+                expected, 'does not match', matchee).append('Keys not equal')
 
         return None
