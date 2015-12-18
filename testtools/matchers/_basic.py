@@ -239,21 +239,6 @@ def _not_an_instance(matchee, types):
         _u("'%s' is not an instance of %s") % (matchee, typestr))
 
 
-class DoesNotContain(Mismatch):
-
-    def __init__(self, matchee, needle):
-        """Create a DoesNotContain Mismatch.
-
-        :param matchee: the object that did not contain needle.
-        :param needle: the needle that 'matchee' was expected to contain.
-        """
-        self.matchee = matchee
-        self.needle = needle
-
-    def describe(self):
-        return "%r not in %r" % (self.needle, self.matchee)
-
-
 class Contains(Matcher):
     """Checks whether something is contained in another thing."""
 
@@ -272,11 +257,15 @@ class Contains(Matcher):
             found = self.needle in matchee
         except TypeError:
             # e.g. 1 in 2 will raise TypeError
-            return DoesNotContain(matchee, self.needle)
+            return _does_not_contain(matchee, self.needle)
         if found:
             return None
         else:
-            return DoesNotContain(matchee, self.needle)
+            return _does_not_contain(matchee, self.needle)
+
+
+def _does_not_contain(matchee, needle):
+    return mismatch(_u("%r not in %r") % (needle, matchee))
 
 
 class MatchesRegex(object):
