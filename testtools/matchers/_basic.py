@@ -57,29 +57,22 @@ class _BinaryComparison(object):
     def match(self, other):
         if self.comparator(other, self.expected):
             return None
-        return _BinaryMismatch(self.expected, self.mismatch_string, other)
+        description = _describe_binary_mismatch(
+            self.expected, self.mismatch_string, other)
+        return Mismatch(description)
 
     def comparator(self, expected, other):
         raise NotImplementedError(self.comparator)
 
 
-class _BinaryMismatch(Mismatch):
-    """Two things did not match."""
-
-    def __init__(self, expected, mismatch_string, other):
-        self.expected = expected
-        self._mismatch_string = mismatch_string
-        self.other = other
-
-    def describe(self):
-        left = repr(self.expected)
-        right = repr(self.other)
-        if len(left) + len(right) > 70:
-            return "%s:\nreference = %s\nactual    = %s\n" % (
-                self._mismatch_string, _format(self.expected),
-                _format(self.other))
-        else:
-            return "%s %s %s" % (left, self._mismatch_string, right)
+def _describe_binary_mismatch(expected, mismatch_string, other):
+    left = repr(expected)
+    right = repr(other)
+    if len(left) + len(right) > 70:
+        return "%s:\nreference = %s\nactual    = %s\n" % (
+            mismatch_string, _format(expected), _format(other))
+    else:
+        return "%s %s %s" % (left, mismatch_string, right)
 
 
 class Equals(_BinaryComparison):
@@ -143,7 +136,10 @@ class SameMembers(Matcher):
         return PostfixedMismatch(
             "\nmissing:    %s\nextra:      %s" % (
                 _format(expected_only), _format(observed_only)),
-            _BinaryMismatch(self.expected, 'elements differ', observed))
+            Mismatch(
+                _describe_binary_mismatch(
+                    self.expected, 'elements differ', observed))
+        )
 
 
 class DoesNotStartWith(Mismatch):

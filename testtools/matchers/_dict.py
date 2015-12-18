@@ -249,11 +249,14 @@ class KeysEqual(Matcher):
         return "KeysEqual(%s)" % ', '.join(map(repr, self.expected))
 
     def match(self, matchee):
-        from ._basic import _BinaryMismatch, Equals
+        from ._basic import _describe_binary_mismatch, Equals
         expected = sorted(self.expected)
         matched = Equals(expected).match(sorted(matchee.keys()))
         if matched:
-            return AnnotatedMismatch(
-                'Keys not equal',
-                _BinaryMismatch(expected, 'does not match', matchee))
+            return Mismatch(
+                '%s: %s' % (
+                    _describe_binary_mismatch(
+                        expected, 'does not match', matchee),
+                    'Keys not equal'))
+
         return None
