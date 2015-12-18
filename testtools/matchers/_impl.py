@@ -104,6 +104,18 @@ class Mismatch(object):
         """
         return getattr(self, '_details', {})
 
+    def append(self, message):
+        return Mismatch(
+            _u('%s: %s' % (self.describe(), message)),
+            dict(self.get_details())
+        )
+
+    def prepend(self, message):
+        return Mismatch(
+            _u('%s: %s' % (message, self.describe())),
+            dict(self.get_details())
+        )
+
     def __repr__(self):
         return  "<testtools.matchers.Mismatch object at %x attributes=%r>" % (
             id(self), self.__dict__)

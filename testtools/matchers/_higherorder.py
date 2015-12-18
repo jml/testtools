@@ -15,7 +15,6 @@ import types
 from ._impl import (
     Matcher,
     Mismatch,
-    MismatchDecorator,
     )
 
 
@@ -139,32 +138,19 @@ class Annotate(object):
     def match(self, other):
         mismatch = self.matcher.match(other)
         if mismatch is not None:
-            return AnnotatedMismatch(self.annotation, mismatch)
+            return mismatch.append(self.annotation)
 
 
-class PostfixedMismatch(MismatchDecorator):
+def PostfixedMismatch(annotation, mismatch):
     """A mismatch annotated with a descriptive string."""
-
-    def __init__(self, annotation, mismatch):
-        super(PostfixedMismatch, self).__init__(mismatch)
-        self.annotation = annotation
-        self.mismatch = mismatch
-
-    def describe(self):
-        return '%s: %s' % (self.original.describe(), self.annotation)
+    return mismatch.append(annotation)
 
 
 AnnotatedMismatch = PostfixedMismatch
 
 
-class PrefixedMismatch(MismatchDecorator):
-
-    def __init__(self, prefix, mismatch):
-        super(PrefixedMismatch, self).__init__(mismatch)
-        self.prefix = prefix
-
-    def describe(self):
-        return '%s: %s' % (self.prefix, self.original.describe())
+def PrefixedMismatch(prefix, mismatch):
+    return mismatch.prepend(prefix)
 
 
 class AfterPreprocessing(object):
