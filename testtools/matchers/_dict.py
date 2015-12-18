@@ -10,7 +10,6 @@ from ..helpers import (
     map_values,
     )
 from ._higherorder import (
-    PrefixedMismatch,
     MismatchesAll,
     )
 from ._impl import Matcher, Mismatch
@@ -19,7 +18,7 @@ from ._impl import Matcher, Mismatch
 def LabelledMismatches(mismatches, details=None):
     """A collection of mismatches, each labelled."""
     return MismatchesAll(
-        (PrefixedMismatch(k, v) for (k, v) in sorted(mismatches.items())),
+        (v.prepend(k) for (k, v) in sorted(mismatches.items())),
         wrap=False)
 
 
