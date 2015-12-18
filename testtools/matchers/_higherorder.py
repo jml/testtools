@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2012 testtools developers. See LICENSE for details.
+# Copyright (c) 2009-2015 testtools developers. See LICENSE for details.
 
 __all__ = [
     'AfterPreprocessing',
@@ -12,9 +12,11 @@ __all__ = [
 
 import types
 
+from testtools.compat import _u
 from ._impl import (
     Matcher,
     Mismatch,
+    mismatch,
     )
 
 
@@ -80,8 +82,8 @@ class MismatchesAll(Mismatch):
         descriptions = []
         if self._wrap:
             descriptions = ["Differences: ["]
-        for mismatch in self.mismatches:
-            descriptions.append(mismatch.describe())
+        for result in self.mismatches:
+            descriptions.append(result.describe())
         if self._wrap:
             descriptions.append("]")
         return '\n'.join(descriptions)
@@ -97,22 +99,17 @@ class Not(object):
         return 'Not(%s)' % (self.matcher,)
 
     def match(self, other):
-        mismatch = self.matcher.match(other)
-        if mismatch is None:
-            return MatchedUnexpectedly(self.matcher, other)
+        result = self.matcher.match(other)
+        if result is None:
+            return MatchedUnexpectedly(other, self.matcher)
         else:
             return None
 
 
-class MatchedUnexpectedly(Mismatch):
+# XXX: Kept for backwards compatibility
+def MatchedUnexpectedly(other, matcher):
     """A thing matched when it wasn't supposed to."""
-
-    def __init__(self, matcher, other):
-        self.matcher = matcher
-        self.other = other
-
-    def describe(self):
-        return "%r matches %s" % (self.other, self.matcher)
+    return mismatch(_u("%r matches %s") % (other, matcher))
 
 
 class Annotate(object):
@@ -141,14 +138,17 @@ class Annotate(object):
             return mismatch.append(self.annotation)
 
 
+# XXX: Kept for backwards compatibility
 def PostfixedMismatch(annotation, mismatch):
     """A mismatch annotated with a descriptive string."""
     return mismatch.append(annotation)
 
 
+# XXX: Kept for backwards compatibility
 AnnotatedMismatch = PostfixedMismatch
 
 
+# XXX: Kept for backwards compatibility
 def PrefixedMismatch(prefix, mismatch):
     return mismatch.prepend(prefix)
 
