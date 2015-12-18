@@ -219,33 +219,24 @@ class IsInstance(object):
         self.types = tuple(types)
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__,
-                ', '.join(type.__name__ for type in self.types))
+        return "%s(%s)" % (
+            self.__class__.__name__,
+            ', '.join(type.__name__ for type in self.types))
 
     def match(self, other):
         if isinstance(other, self.types):
             return None
-        return NotAnInstance(other, self.types)
+        return _not_an_instance(other, self.types)
 
 
-class NotAnInstance(Mismatch):
-
-    def __init__(self, matchee, types):
-        """Create a NotAnInstance Mismatch.
-
-        :param matchee: the thing which is not an instance of any of types.
-        :param types: A tuple of the types which were expected.
-        """
-        self.matchee = matchee
-        self.types = types
-
-    def describe(self):
-        if len(self.types) == 1:
-            typestr = self.types[0].__name__
-        else:
-            typestr = 'any of (%s)' % ', '.join(type.__name__ for type in
-                    self.types)
-        return "'%s' is not an instance of %s" % (self.matchee, typestr)
+def _not_an_instance(matchee, types):
+    if len(types) == 1:
+        typestr = types[0].__name__
+    else:
+        typestr = _u('any of (%s)') % _u(', ').join(
+            type.__name__ for type in types)
+    return mismatch(
+        _u("'%s' is not an instance of %s") % (matchee, typestr))
 
 
 class DoesNotContain(Mismatch):
