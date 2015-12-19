@@ -43,7 +43,8 @@ from testtools.content import (
     )
 from testtools.content_type import ContentType
 from testtools.tags import TagContext
-from testtools._itesttools import IExtendedTestResult, IStreamResult
+from testtools._itesttools import (
+    IExtendedTestResult, IStreamResult, ITestControl)
 
 # circular import
 # from testtools.testcase import PlaceHolder
@@ -68,7 +69,7 @@ class UTC(datetime.tzinfo):
 utc = UTC()
 
 
-@implementer(IExtendedTestResult)
+@implementer(IExtendedTestResult, ITestControl)
 class TestResult(unittest.TestResult):
     """Subclass of unittest.TestResult extending the protocol for flexability.
 
@@ -908,6 +909,7 @@ class StreamSummary(StreamResult):
         self.unexpectedSuccesses.append(case)
 
 
+@implementer(ITestControl)
 class TestControl(object):
     """Controls a running test run, allowing it to be interrupted.
 
@@ -1074,6 +1076,7 @@ class TextTestResult(TestResult):
         super(TextTestResult, self).stopTestRun()
 
 
+@implementer(ITestControl)
 class ThreadsafeForwardingResult(TestResult):
     """A TestResult which ensures the target does not receive mixed up calls.
 
@@ -1236,6 +1239,7 @@ def _merge_tags(existing, changed):
     return result_new, result_gone
 
 
+@implementer(IExtendedTestResult, ITestControl)
 class ExtendedToOriginalDecorator(object):
     """Permit new TestResult API code to degrade gracefully with old results.
 
@@ -1675,7 +1679,7 @@ class StreamToQueue(StreamResult):
         return self.routing_code + _u("/") + route_code
 
 
-@implementer(IExtendedTestResult)
+@implementer(IExtendedTestResult, ITestControl)
 class TestResultDecorator(object):
     """General pass-through decorator.
 

@@ -80,8 +80,6 @@ class IRunTest(Interface):
 # TODO:
 # - legacy test result interfaces
 # - document which test result interfaces are expected above
-# - make TestControl an interface, use it by composition in
-#   ExtendedToOriginalDecorator
 # - figure out whether .errors, .skip_reasons, .failures, etc. should be
 #   on IExtendedTestResult or on a separate interface that TestResult also
 #   implements
@@ -384,3 +382,11 @@ class IStreamResult(Interface):
             defaults to application/octet-stream. Ignored unless file_name
             has been supplied.
         """
+
+
+class ITestControl(Interface):
+
+    shouldStop = Attribute('shouldStop')
+
+    def stop():
+        """Stop a test run."""
