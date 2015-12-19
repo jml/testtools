@@ -15,7 +15,7 @@ import sys
 import threading
 import unittest
 
-from zope.interface import implements
+from zope.interface import implementer
 
 from extras import safe_hasattr, try_imports
 # This is just to let setup.py work, as testtools is imported in setup.py.
@@ -38,10 +38,9 @@ def iterate_tests(test_suite_or_case):
                 yield subtest
 
 
+@implementer(ITestSuite)
 class ConcurrentTestSuite(unittest2.TestSuite):
     """A TestSuite whose run() calls out to a concurrency strategy."""
-
-    implements(ITestSuite)
 
     def __init__(self, suite, make_tests, wrap_result=None):
         """Create a ConcurrentTestSuite to execute suite.
@@ -119,10 +118,9 @@ class ConcurrentTestSuite(unittest2.TestSuite):
             queue.put(test)
 
 
+@implementer(ITestSuite)
 class ConcurrentStreamTestSuite(object):
     """A TestSuite whose run() parallelises."""
-
-    implements(ITestSuite)
 
     def __init__(self, make_tests):
         """Create a ConcurrentTestSuite to execute tests returned by make_tests.
@@ -205,9 +203,8 @@ class ConcurrentStreamTestSuite(object):
             process_result.stopTestRun()
 
 
+@implementer(ITestSuite)
 class FixtureSuite(unittest2.TestSuite):
-
-    implements(ITestSuite)
 
     def __init__(self, fixture, tests):
         super(FixtureSuite, self).__init__(tests)
@@ -253,7 +250,7 @@ def _flatten_tests(suite_or_case, unpack_outer=False):
 
 def filter_by_ids(suite_or_case, test_ids):
     """Remove tests from suite_or_case where their id is not in test_ids.
-    
+
     :param suite_or_case: A test suite or test case.
     :param test_ids: Something that supports the __contains__ protocol.
     :return: suite_or_case, unless suite_or_case was a case that itself

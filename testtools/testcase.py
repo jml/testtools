@@ -25,7 +25,7 @@ from extras import (
     try_import,
     try_imports,
     )
-from zope.interface import implements
+from zope.interface import implementer
 
 # To let setup.py work, make this a conditional import.
 unittest = try_imports(['unittest2', 'unittest'])
@@ -175,6 +175,7 @@ def gather_details(source_dict, target_dict):
         target_dict[name] = _copy_content(content_object)
 
 
+@implementer(ITestCaseStrategy)
 class TestCase(unittest.TestCase):
     """Extensions to the basic TestCase.
 
@@ -187,8 +188,6 @@ class TestCase(unittest.TestCase):
         run tests with. Defaults to ``RunTest``.  The factory is expected to
         take a test case and a list of exception handlers.
     """
-
-    implements(ITestCaseStrategy)
 
     skipException = TestSkipped
 

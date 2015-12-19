@@ -8,7 +8,7 @@ __all__ = [
     ]
 
 import sys
-from zope.interface import classImplements, implements
+from zope.interface import implementer, provider
 
 from testtools.testresult import ExtendedToOriginalDecorator
 from testtools._itesttools import IRunTestFactory, IRunTest
@@ -21,6 +21,8 @@ class MultipleExceptions(Exception):
     """
 
 
+@provider(IRunTestFactory)
+@implementer(IRunTest)
 class RunTest(object):
     """An object to run a test.
 
@@ -48,9 +50,6 @@ class RunTest(object):
     :ivar _exceptions: A list of caught exceptions, used to do the single
         reporting of error/failure/skip etc.
     """
-
-    classImplements(IRunTestFactory)
-    implements(IRunTest)
 
     def __init__(self, case, handlers=None, last_resort=None):
         """Create a RunTest to run a case.
